@@ -2,8 +2,10 @@ from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+from .users.routers import router as users_router
 app = FastAPI()
 
+app.include_router(users_router)
 
 @app.exception_handler(RequestValidationError)
 def handle_validation_error(

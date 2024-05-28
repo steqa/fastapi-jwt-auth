@@ -3,6 +3,32 @@ from datetime import timedelta, datetime, UTC
 import jwt
 from src.config import settings
 
+ACCESS_TOKEN_TYPE = 'access'
+REFRESH_TOKEN_TYPE = 'refresh'
+
+
+def create_access_token(user):
+    jwt_payload = {
+        'type': ACCESS_TOKEN_TYPE,
+        'sub': user.email,
+        'email': user.email,
+    }
+    return encode_jwt(
+        payload=jwt_payload,
+        expire_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
+    )
+
+
+def create_refresh_token(user):
+    jwt_payload = {
+        'type': REFRESH_TOKEN_TYPE,
+        'sub': user.email,
+    }
+    return encode_jwt(
+        payload=jwt_payload,
+        expire_timedelta=timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+    )
+
 
 def encode_jwt(
         payload: dict,

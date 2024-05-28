@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
@@ -8,6 +10,7 @@ from . import services
 from .exceptions import (
     NotAuthenticated,
     UserEmailExists,
+    UserNotFound,
 )
 from .models import User
 from .pagination import Pagination
@@ -57,3 +60,23 @@ def get_users(
 )
 def get_current_user(current_user: User = Depends(get_current_auth_user)):
     return current_user
+
+
+@router.get(
+    '/{user_uuid}/',
+    response_model=UserResponse,
+    responses=dict([
+        NotAuthenticated.response_example(),
+        TokenInvalid.response_example(),
+        UserNotFound.response_example()
+    ])
+)
+def get_user(
+        user_id: uuid.UUID,
+        current_user: User = Depends(get_current_auth_user),
+        db: Session = Depends(get_db)
+):
+    user = services.get_user_by_id(db, user_id=user_id)
+    if not user:
+        raise UserNotFound
+    return user

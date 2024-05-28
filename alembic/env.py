@@ -9,6 +9,7 @@ from src.database import Base
 
 # noinspection PyUnresolvedReferences
 from src.users.models import User
+from src.email_send.models import EmailConfirmCode
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

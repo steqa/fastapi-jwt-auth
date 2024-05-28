@@ -7,11 +7,12 @@ from src.database import get_db
 from src.jwt_auth.dependencies import get_current_auth_user
 from src.users.exceptions import UserNotFound, NotAuthenticated
 from src.users.models import User
-from src.users.services import get_user_by_id
+from src.users.schemas import UserResponse
+from src.users.services import get_user_by_id, activate_user
 from . import services
-from .exceptions import EmailConfirmCodeExists
+from .exceptions import EmailConfirmCodeExists, UserAlreadyActivated
 from .schemas import EmailConfirmCodeResponse
-from .utils import send_registration_confirm_email
+from .utils import send_registration_confirm_email, validate_email_confirm_code
 
 router = APIRouter(prefix='/api/v1/email', tags=['email'])
 
@@ -42,3 +43,26 @@ def create_email_confirm_code(
     code = services.create_email_confirm_code(db=db, user_id=user_id)
     send_registration_confirm_email(to=user.email, code=code)
     return code
+
+
+@router.post(
+    '/confirm-email',
+    response_model=UserResponse,
+    status_code=status.HTTP_200_OK,
+    responses=dict([
+        UserNotFound.response_example(),
+        UserAlreadyActivated.response_example()
+    ])
+)
+def confirm_email(user_id: uuid.UUID, code: int, db: Session = Depends(get_db)):
+    user = get_user_by_id(db=db, user_id=user_id)
+    if not user:
+        raise UserNotFound
+    if user.is_active:
+        raise UserAlreadyActivated
+
+    expected_code = services.get_email_confirm_code_by_user_id(db=db, user_id=user_id)
+    validate_email_confirm_code(expected_code, code)
+    user = activate_user(db=db, user_id=user_id)
+    services.delete_email_confirm_code_by_id(db=db, code_id=expected_code.id)
+    return user

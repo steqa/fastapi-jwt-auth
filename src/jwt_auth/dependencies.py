@@ -4,7 +4,7 @@ from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
 
 from src.database import get_db
-from src.jwt_auth.utils import REFRESH_TOKEN_TYPE
+from src.jwt_auth.utils import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
 from src.users import services
 from src.users.models import User
 from .exceptions import TokenInvalid
@@ -22,6 +22,14 @@ def get_token_payload(
     except InvalidTokenError:
         raise TokenInvalid
     return payload
+
+
+def get_current_auth_user(
+        token_payload: dict = Depends(get_token_payload),
+        db: Session = Depends(get_db),
+) -> User:
+    validate_token_type(token_payload, ACCESS_TOKEN_TYPE)
+    return get_user_by_token_sub(token_payload, db)
 
 
 def get_current_auth_user_for_refresh(

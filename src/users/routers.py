@@ -34,6 +34,9 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     user = services.create_user(db=db, user=user)
     code = create_email_confirm_code(user_id=user.id, db=db)
     tasks.schedule_delete_inactive_user(user_id=user.id)
+    tasks.schedule_delete_email_confirm_code(
+        code_id=code.id, delete_at=code.expired_at
+    )
     return user
 
 

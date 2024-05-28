@@ -62,6 +62,8 @@ def confirm_email(user_id: uuid.UUID, code: int, db: Session = Depends(get_db)):
         raise UserAlreadyActivated
 
     expected_code = services.get_email_confirm_code_by_user_id(db=db, user_id=user_id)
+    if not expected_code:
+        raise UserNotFound
     validate_email_confirm_code(expected_code, code)
     user = activate_user(db=db, user_id=user_id)
     services.delete_email_confirm_code_by_id(db=db, code_id=expected_code.id)

@@ -19,3 +19,7 @@ def get_email_confirm_code_by_user_id(
         db: Session, user_id: uuid.UUID
 ) -> EmailConfirmCode | None:
     return db.query(EmailConfirmCode).filter(EmailConfirmCode.user_id == user_id).first()
+
+def delete_email_confirm_code_by_id(db: Session, code_id: uuid.UUID):
+    db.query(EmailConfirmCode).filter(EmailConfirmCode.id == code_id).delete()
+    db.commit()

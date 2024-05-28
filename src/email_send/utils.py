@@ -1,4 +1,5 @@
 import smtplib
+from datetime import datetime, UTC
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
@@ -7,6 +8,7 @@ from random import randint
 from fastapi.templating import Jinja2Templates
 
 from src.config import settings
+from .exceptions import EmailConfirmCodeInvalid
 from .models import EmailConfirmCode
 
 TEMPLATES_DIR = Path(__file__).parent / 'templates'
@@ -50,3 +52,14 @@ def send_registration_confirm_email(
     template = 'registration_confirm.html'
     context = {'code': code.code, 'expired_at': code.expired_at}
     send_email(to=to, subject=subject, html_template=template, context=context)
+
+
+def validate_email_confirm_code(
+        expected_code: EmailConfirmCode,
+        code: int
+) -> EmailConfirmCode:
+    now = datetime.now(UTC).replace(tzinfo=None)
+    if (expected_code.code != code) or (now > expected_code.expired_at):
+        raise EmailConfirmCodeInvalid
+
+    return expected_code

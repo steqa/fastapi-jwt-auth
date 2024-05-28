@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from src.database import get_db
+from src.email_send.routers import create_email_confirm_code
 from src.jwt_auth.dependencies import get_current_auth_user
 from src.jwt_auth.exceptions import TokenInvalid
 from . import services
@@ -31,6 +32,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise UserEmailExists
     user = services.create_user(db=db, user=user)
+    code = create_email_confirm_code(user_id=user.id, db=db)
     tasks.schedule_delete_inactive_user(user_id=user.id)
     return user
 

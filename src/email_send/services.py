@@ -13,3 +13,9 @@ def create_email_confirm_code(db: Session, user_id: uuid.UUID) -> EmailConfirmCo
     db.commit()
     db.refresh(new_code)
     return new_code
+
+
+def get_email_confirm_code_by_user_id(
+        db: Session, user_id: uuid.UUID
+) -> EmailConfirmCode | None:
+    return db.query(EmailConfirmCode).filter(EmailConfirmCode.user_id == user_id).first()

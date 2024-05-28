@@ -7,6 +7,7 @@ from random import randint
 from fastapi.templating import Jinja2Templates
 
 from src.config import settings
+from .models import EmailConfirmCode
 
 TEMPLATES_DIR = Path(__file__).parent / 'templates'
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
@@ -39,3 +40,13 @@ def send_email(
         server.starttls()
         server.login(settings.EMAIL_ADDRESS, settings.EMAIL_PASSWORD)
         server.send_message(msg)
+
+
+def send_registration_confirm_email(
+        to: str,
+        code: EmailConfirmCode,
+):
+    subject = 'Подтверждение регистрации.'
+    template = 'registration_confirm.html'
+    context = {'code': code.code, 'expired_at': code.expired_at}
+    send_email(to=to, subject=subject, html_template=template, context=context)

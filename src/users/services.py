@@ -34,3 +34,10 @@ def get_user_by_email(db: Session, email: str) -> User | None:
 def delete_user_by_id(db: Session, user_id: uuid.UUID) -> None:
     db.query(User).filter(User.id == user_id).delete()
     db.commit()
+
+
+def activate_user(db: Session, user_id: uuid.UUID) -> User:
+    user = db.query(User).get(user_id)
+    user.is_active = True
+    db.commit()
+    return user

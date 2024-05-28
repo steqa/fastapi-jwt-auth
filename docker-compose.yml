@@ -1,0 +1,70 @@
+version: "3.8"
+
+services:
+  web:
+    container_name: web
+    build: .
+    command: ["docker/app.sh"]
+    restart: always
+    volumes:
+      - .:/app
+    ports:
+      - ${SITE_PORT}:8000
+    depends_on:
+      - db
+    env_file:
+      - docker/.env
+
+  db:
+    container_name: db
+    image: postgres:latest
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT}:5432
+    env_file:
+      - docker/.env
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - ${REDIS_PORT}:6379
+    env_file:
+      - docker/.env
+
+  worker:
+    container_name: worker
+    build: .
+    command: celery -A src.celery_tasks.tasks worker --loglevel=INFO --pool=solo
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+
+  flower:
+    container_name: flower
+    build: .
+    command: celery -A src.celery_tasks.tasks flower --address=0.0.0.0 --port=5555
+    environment:
+      - CELERY_BROKER_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
+    volumes:
+      - flower_data:/data
+    ports:
+      - ${FLOWER_PORT}:5555
+    depends_on:
+      - worker
+      - redis
+    env_file:
+      - docker/.env
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  flower_data:
+    driver: local

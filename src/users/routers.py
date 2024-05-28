@@ -15,6 +15,7 @@ from .exceptions import (
 from .models import User
 from .pagination import Pagination
 from .schemas import UserResponse, UserCreate
+from src.celery_tasks import tasks
 
 router = APIRouter(prefix='/api/v1/users', tags=['users'])
 
@@ -30,6 +31,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise UserEmailExists
     user = services.create_user(db=db, user=user)
+    tasks.schedule_delete_inactive_user(user_id=user.id)
     return user
 
 

@@ -29,3 +29,8 @@ def get_user_by_id(db: Session, user_id: uuid.UUID) -> User | None:
 
 def get_user_by_email(db: Session, email: str) -> User | None:
     return db.query(User).filter(User.email == email.lower()).first()
+
+
+def delete_user_by_id(db: Session, user_id: uuid.UUID) -> None:
+    db.query(User).filter(User.id == user_id).delete()
+    db.commit()

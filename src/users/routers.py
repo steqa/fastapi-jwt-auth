@@ -45,3 +45,15 @@ def get_users(
 ):
     users = services.get_users(db, pagination.skip, pagination.limit)
     return users
+
+
+@router.get(
+    '/me/',
+    response_model=UserResponse,
+    responses=dict([
+        NotAuthenticated.response_example(),
+        TokenInvalid.response_example()
+    ])
+)
+def get_current_user(current_user: User = Depends(get_current_auth_user)):
+    return current_user

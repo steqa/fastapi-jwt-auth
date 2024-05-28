@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 
 from src.database import get_db
 from . import services
+from .exceptions import (
+    UserEmailExists,
+)
 from .pagination import Pagination
 from .schemas import UserResponse, UserCreate
 
@@ -17,10 +20,7 @@ router = APIRouter(prefix='/api/v1/users', tags=['users'])
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = services.get_user_by_email(db, email=user.email)
     if db_user:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail='Email already registered'
-        )
+        raise UserEmailExists
     user = services.create_user(db=db, user=user)
     return user
 

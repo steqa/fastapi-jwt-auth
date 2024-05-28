@@ -1,12 +1,15 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from src.database import get_db
 from src.jwt_auth.dependencies import get_current_auth_user
+from src.jwt_auth.exceptions import TokenInvalid
 from . import services
 from .exceptions import (
+    NotAuthenticated,
     UserEmailExists,
 )
+from .models import User
 from .pagination import Pagination
 from .schemas import UserResponse, UserCreate
 
@@ -16,7 +19,8 @@ router = APIRouter(prefix='/api/v1/users', tags=['users'])
 @router.post(
     '/',
     response_model=UserResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    responses=dict([TokenInvalid.response_example()])
 )
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = services.get_user_by_email(db, email=user.email)
@@ -29,6 +33,10 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 @router.get(
     '/',
     response_model=list[UserResponse],
+    responses=dict([
+        NotAuthenticated.response_example(),
+        TokenInvalid.response_example()
+    ])
 )
 def get_users(
         current_user: User = Depends(get_current_auth_user),

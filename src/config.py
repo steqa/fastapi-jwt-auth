@@ -1,13 +1,13 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 class Settings(BaseSettings):
     TIME_LOCALE: str
-    # SITE_URL: str
-    SITE_PORT: int
+    API_PORT: int
 
     POSTGRES_HOST: str
     POSTGRES_PORT: int

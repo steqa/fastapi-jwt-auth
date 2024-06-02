@@ -9,7 +9,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - ${SITE_PORT}:8000
+      - ${API_PORT}:8000
     depends_on:
       - db
     env_file:

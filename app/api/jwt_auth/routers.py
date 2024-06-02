@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
 
-from src.users.dependencies import authenticate_user
+from api.users.dependencies import authenticate_user
+from api.users.models import User
+from .dependencies import get_current_auth_user_for_refresh
 from .schemas import TokenResponse
 from .utils import create_access_token, create_refresh_token
-from .dependencies import get_current_auth_user_for_refresh
-from src.users.models import User
 
 router = APIRouter(prefix='/api/v1/auth/jwt', tags=['jwt'])
 

@@ -1,5 +1,6 @@
 from fastapi import status
-from src.exceptions import BaseValidationError, BaseHTTPException
+
+from api.exceptions import BaseValidationError, BaseHTTPException
 
 
 class EmailConfirmCodeInvalid(BaseValidationError):

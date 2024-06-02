@@ -1,11 +1,11 @@
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
-from src.database import get_db
+from api.database import get_db
 from . import services, utils
-from .schemas import UserLogin
 from .exceptions import AuthError, UserInactive
 from .models import User
+from .schemas import UserLogin
 
 
 def authenticate_user(

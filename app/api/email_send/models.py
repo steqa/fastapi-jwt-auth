@@ -1,11 +1,11 @@
-from datetime import datetime, timedelta, UTC
 import uuid
+from datetime import datetime, timedelta, UTC
 
 from sqlalchemy import Column, DateTime, Integer
 from sqlalchemy.dialects.postgresql import UUID
 
-from src.database import Base
-from src.config import settings
+from api.config import settings
+from api.database import Base
 
 
 class EmailConfirmCode(Base):

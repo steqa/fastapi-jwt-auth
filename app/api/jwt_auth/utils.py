@@ -1,7 +1,8 @@
 from datetime import timedelta, datetime, UTC
 
 import jwt
-from src.config import settings
+
+from api.config import settings
 
 ACCESS_TOKEN_TYPE = 'access'
 REFRESH_TOKEN_TYPE = 'refresh'

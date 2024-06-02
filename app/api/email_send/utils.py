@@ -7,7 +7,7 @@ from random import randint
 
 from fastapi.templating import Jinja2Templates
 
-from src.config import settings
+from api.config import settings
 from .exceptions import EmailConfirmCodeInvalid
 from .models import EmailConfirmCode
 

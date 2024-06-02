@@ -3,10 +3,10 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
 
-from src.database import get_db
-from src.jwt_auth.utils import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
-from src.users import services
-from src.users.models import User
+from api.database import get_db
+from api.jwt_auth.utils import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE
+from api.users import services
+from api.users.models import User
 from .exceptions import TokenInvalid
 from .utils import decode_jwt
 

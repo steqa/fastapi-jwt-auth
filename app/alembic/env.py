@@ -1,15 +1,15 @@
 from logging.config import fileConfig
 
-from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
-from src.config import settings
-from src.database import Base
-
+from alembic import context
+from api.config import settings
+from api.database import Base
 # noinspection PyUnresolvedReferences
-from src.users.models import User
-from src.email_send.models import EmailConfirmCode
+from api.email_send.models import EmailConfirmCode
+# noinspection PyUnresolvedReferences
+from api.users.models import User
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

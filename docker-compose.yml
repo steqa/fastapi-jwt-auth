@@ -1,19 +1,22 @@
 version: "3.8"
 
 services:
-  web:
-    container_name: web
-    build: .
-    command: ["docker/app.sh"]
+  api:
+    container_name: api
     restart: always
-    volumes:
-      - .:/app
-    ports:
-      - ${API_PORT}:8000
+    build:
+      context: docker/api
+      dockerfile: Dockerfile
     depends_on:
       - db
+    ports:
+      - ${API_PORT}:8000
+    volumes:
+      - ./app/api:/app/api
+      - ./app/alembic:/app/alembic
+      - ./app/alembic.ini:/app/alembic.ini
     env_file:
-      - docker/.env
+      - .env
 
   db:
     container_name: db
@@ -24,7 +27,7 @@ services:
     ports:
       - ${POSTGRES_PORT}:5432
     env_file:
-      - docker/.env
+      - .env
 
   redis:
     container_name: redis
@@ -35,24 +38,31 @@ services:
     ports:
       - ${REDIS_PORT}:6379
     env_file:
-      - docker/.env
+      - .env
 
   worker:
     container_name: worker
-    build: .
-    command: celery -A src.celery_tasks.tasks worker --loglevel=INFO --pool=solo
+    build:
+      context: docker/api
+      dockerfile: Dockerfile
+    command: celery -A api.celery_tasks.tasks worker --loglevel=INFO --pool=solo
     volumes:
-      - .:/app
+      - ./app/api:/app/api
     depends_on:
       - redis
+    env_file:
+      - .env
 
   flower:
     container_name: flower
-    build: .
-    command: celery -A src.celery_tasks.tasks flower --address=0.0.0.0 --port=5555
+    build:
+      context: docker/api
+      dockerfile: Dockerfile
+    command: celery -A api.celery_tasks.tasks flower --address=0.0.0.0 --port=5555
     environment:
       - CELERY_BROKER_URL=redis://${REDIS_HOST}:${REDIS_PORT}/0
     volumes:
+      - ./app/api:/app/api
       - flower_data:/data
     ports:
       - ${FLOWER_PORT}:5555
@@ -60,7 +70,7 @@ services:
       - worker
       - redis
     env_file:
-      - docker/.env
+      - .env
 volumes:
   postgres_data:
     driver: local

@@ -3,12 +3,12 @@ import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from src.database import get_db
-from src.jwt_auth.dependencies import get_current_auth_user
-from src.users.exceptions import UserNotFound, NotAuthenticated
-from src.users.models import User
-from src.users.schemas import UserResponse
-from src.users.services import get_user_by_id, activate_user
+from api.database import get_db
+from api.jwt_auth.dependencies import get_current_auth_user
+from api.users.exceptions import UserNotFound, NotAuthenticated
+from api.users.models import User
+from api.users.schemas import UserResponse
+from api.users.services import get_user_by_id, activate_user
 from . import services
 from .exceptions import EmailConfirmCodeExists, UserAlreadyActivated
 from .schemas import EmailConfirmCodeResponse

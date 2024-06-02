@@ -1,5 +1,6 @@
 from fastapi import status
-from src.exceptions import BaseHTTPException
+
+from api.exceptions import BaseHTTPException
 
 
 class TokenInvalid(BaseHTTPException):

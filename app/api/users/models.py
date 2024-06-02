@@ -4,7 +4,7 @@ import uuid
 from sqlalchemy import Boolean, Column, DateTime, String
 from sqlalchemy.dialects.postgresql import UUID, BYTEA
 
-from src.database import Base
+from api.database import Base
 
 
 class User(Base):

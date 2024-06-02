@@ -3,10 +3,11 @@ import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from src.database import get_db
-from src.email_send.routers import create_email_confirm_code
-from src.jwt_auth.dependencies import get_current_auth_user
-from src.jwt_auth.exceptions import TokenInvalid
+from api.celery_tasks import tasks
+from api.database import get_db
+from api.email_send.routers import create_email_confirm_code
+from api.jwt_auth.dependencies import get_current_auth_user
+from api.jwt_auth.exceptions import TokenInvalid
 from . import services
 from .exceptions import (
     NotAuthenticated,
@@ -16,7 +17,6 @@ from .exceptions import (
 from .models import User
 from .pagination import Pagination
 from .schemas import UserResponse, UserCreate
-from src.celery_tasks import tasks
 
 router = APIRouter(prefix='/api/v1/users', tags=['users'])
 

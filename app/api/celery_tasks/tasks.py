@@ -4,10 +4,10 @@ from uuid import UUID
 from celery import Celery
 from sqlalchemy.orm import sessionmaker, Session
 
-from src.config import settings
-from src.database import engine
-from src.email_send import services as email_send_service
-from src.users import services as users_service
+from api.config import settings
+from api.database import engine
+from api.email_send import services as email_send_service
+from api.users import services as users_service
 
 celery = Celery(
     'tasks',

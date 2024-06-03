@@ -9,7 +9,7 @@ from .jwt_auth.routers import router as jwt_auth_router
 from .users.routers import router as users_router
 from .config import settings
 
-app = FastAPI()
+app = FastAPI(docs_url='/api/v1/docs', redoc_url='/api/v1/redoc')
 
 app.include_router(users_router)
 app.include_router(jwt_auth_router)

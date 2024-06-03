@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from api.celery_tasks import tasks
+from api import pubsub
 from api.database import get_db
 from api.email_send.routers import create_email_confirm_code
 from api.jwt_auth.dependencies import get_current_auth_user
@@ -33,10 +33,8 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         raise UserEmailExists
     user = services.create_user(db=db, user=user)
     code = create_email_confirm_code(user_id=user.id, db=db)
-    tasks.schedule_delete_inactive_user(user_id=user.id)
-    tasks.schedule_delete_email_confirm_code(
-        code_id=code.id, delete_at=code.expired_at
-    )
+    pubsub.schedule_delete_inactive_user(user_id=user.id)
+    pubsub.schedule_delete_email_confirm_code(code_id=code.id, delete_at=code.expired_at)
     return user
 
 

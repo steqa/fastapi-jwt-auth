@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from api.database import get_db
 from api.jwt_auth.dependencies import get_current_auth_user
+from api.pubsub import send_registration_confirm_email
 from api.users.exceptions import UserNotFound, NotAuthenticated
 from api.users.models import User
 from api.users.schemas import UserResponse
@@ -12,7 +13,7 @@ from api.users.services import get_user_by_id, activate_user
 from . import services
 from .exceptions import EmailConfirmCodeExists, UserAlreadyActivated
 from .schemas import EmailConfirmCodeResponse
-from .utils import send_registration_confirm_email, validate_email_confirm_code
+from .utils import validate_email_confirm_code
 
 router = APIRouter(prefix='/api/v1/email', tags=['email'])
 
@@ -41,7 +42,11 @@ def create_email_confirm_code(
         raise EmailConfirmCodeExists
 
     code = services.create_email_confirm_code(db=db, user_id=user_id)
-    send_registration_confirm_email(to=user.email, code=code)
+    send_registration_confirm_email(
+        to=user.email,
+        code=code.code,
+        expired_at=code.expired_at
+    )
     return code
 
 

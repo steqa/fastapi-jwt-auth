@@ -4,14 +4,12 @@ from uuid import UUID
 from celery import Celery
 from sqlalchemy.orm import sessionmaker, Session
 
-from api.config import settings
-from api.database import engine
-from api.email_send import services as email_send_service
-from api.users import services as users_service
+from .config import settings
+from .database import engine, User, EmailConfirmCode
 
 celery = Celery(
     'tasks',
-    broker=f'redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0',
+    broker=f'redis://{settings.CELERY_REDIS_HOST}:{settings.REDIS_PORT}/0',
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -27,33 +25,35 @@ def with_db_session(func):
     return wrapper
 
 
-@celery.task(name='delete_inactive_user')
+@celery.task(name='schedule_delete_user')
 @with_db_session
 def __delete_inactive_user(db: Session, user_id: str):
     user_id = UUID(user_id)
-    user = users_service.get_user_by_id(db, user_id)
+    user = db.query(User).filter(User.id == user_id).first()
     if user and not user.is_active:
-        users_service.delete_user_by_id(db, user_id)
+        db.query(User).filter(User.id == user_id).delete()
+        db.commit()
 
 
 @celery.task(name='delete_email_confirm_code')
 @with_db_session
 def __delete_email_confirm_code(db: Session, code_id: str):
     code_id = UUID(code_id)
-    code = email_send_service.get_email_confirm_code_by_id(db, code_id)
+    code = db.query(EmailConfirmCode).filter(EmailConfirmCode.id == code_id).first()
     if code:
-        email_send_service.delete_email_confirm_code_by_id(db, code_id)
+        db.query(EmailConfirmCode).filter(EmailConfirmCode.id == code_id).delete()
+        db.commit()
 
 
 def schedule_delete_inactive_user(
-        user_id: UUID,
-        delay: int = settings.USER_CONFIRM_EXPIRE_MINUTES
+        user_id: str,
+        delay_seconds: int
 ):
-    __delete_inactive_user.apply_async(args=[str(user_id)], countdown=delay * 60)
+    __delete_inactive_user.apply_async(args=[user_id], countdown=delay_seconds)
 
 
 def schedule_delete_email_confirm_code(
-        code_id: UUID,
+        code_id: str,
         delete_at: datetime
 ):
-    __delete_email_confirm_code.apply_async(args=[str(code_id)], eta=delete_at)
+    __delete_email_confirm_code.apply_async(args=[code_id], eta=delete_at)

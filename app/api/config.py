@@ -1,43 +1,30 @@
+import os
 from pathlib import Path
-
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent
 
 
-class Settings(BaseSettings):
-    TIME_LOCALE: str
-    API_PORT: int
+class Settings:
+    TIME_LOCALE = os.getenv('TIME_LOCALE')
 
-    POSTGRES_HOST: str
-    POSTGRES_PORT: int
-    POSTGRES_DATABASE: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
+    POSTGRES_HOST = os.getenv('POSTGRES_HOST')
+    POSTGRES_PORT = int(os.getenv('POSTGRES_PORT'))
+    POSTGRES_DATABASE = os.getenv('POSTGRES_DATABASE')
+    POSTGRES_USER = os.getenv('POSTGRES_USER')
+    POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
 
-    REDIS_HOST: str
-    REDIS_PORT: int
+    PUBSUB_REDIS_HOST = os.getenv('PUBSUB_REDIS_HOST')
+    REDIS_PORT = int(os.getenv('REDIS_PORT'))
 
-    FLOWER_PORT: int
+    JWT_PRIVATE_KEY_PATH = BASE_DIR / 'certs/jwt-private.pem'
+    JWT_PUBLIC_KEY_PATH = BASE_DIR / 'certs/jwt-public.pem'
+    JWT_ALGORITHM = 'RS256'
 
-    JWT_PRIVATE_KEY_PATH: Path = BASE_DIR / 'certs/jwt-private.pem'
-    JWT_PUBLIC_KEY_PATH: Path = BASE_DIR / 'certs/jwt-public.pem'
-    JWT_ALGORITHM: str = 'RS256'
+    ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES'))
+    REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv('REFRESH_TOKEN_EXPIRE_DAYS'))
 
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
-    REFRESH_TOKEN_EXPIRE_DAYS: int
-
-    EMAIL_HOST: str
-    EMAIL_PORT: int
-    EMAIL_ADDRESS: str
-    EMAIL_PASSWORD: str
-    EMAIL_FROM_NAME: str
-    EMAIL_FROM_ADDRESS: str
-
-    EMAIL_CONFIRM_CODE_EXPIRE_MINUTES: int
-    USER_CONFIRM_EXPIRE_MINUTES: int
-
-    model_config = SettingsConfigDict(env_file=Path(BASE_DIR, '.env'))
+    EMAIL_CONFIRM_CODE_EXPIRE_MINUTES = int(os.getenv('EMAIL_CONFIRM_CODE_EXPIRE_MINUTES'))
+    USER_CONFIRM_EXPIRE_MINUTES = int(os.getenv('USER_CONFIRM_EXPIRE_MINUTES'))
 
 
 settings = Settings()
